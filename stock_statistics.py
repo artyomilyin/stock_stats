@@ -26,59 +26,42 @@ class StockStatBase:
 
 class StockStatUniqDate(StockStatBase):
 
-    def __init__(self, *args, **kwargs):
-        if None in [
-                self.stock_name,
-                self.date_col,
-                self.date_format,
-                self.delimiter,
-                self.total_col,
-                self.total_money_col]:
-            raise Exception(f"Improperly configured: {self.__class__}")
-        super().__init__(*args, **kwargs)
-
     def process_rows(self, rows, output_dict):
         for row in rows:
-            try:
-                date = datetime.datetime.strptime(
-                    row[self.date_col], self.date_format).date().isoformat()
-            except ValueError:
-                continue
-            date_data = output_dict.get(date, {})
-            date_data[self.stock_name] = (
-                int(row[self.total_col]), Decimal(row[self.total_money_col].replace('$', '')))
-            output_dict[date] = date_data
+            if row:
+                try:
+                    date = datetime.datetime.strptime(
+                        row[self.date_col], self.date_format).date().isoformat()
+                except ValueError:
+                    continue
+                date_data = output_dict.get(date, {})
+                str_total_col = row[self.total_col].replace('-', '')
+                total_count = int(str_total_col) if str_total_col else 0
+                date_data[self.stock_name] = (
+                    total_count, Decimal(row[self.total_money_col].replace('$', '')))
+                output_dict[date] = date_data
 
 
 class StockStatNotUniqDate(StockStatBase):
 
-    def __init__(self, *args, **kwargs):
-        if None in [
-                self.stock_name,
-                self.date_col,
-                self.date_format,
-                self.delimiter,
-                self.money_col]:
-            raise Exception(f"Improperly configured: {self.__class__}")
-        super().__init__(*args, **kwargs)
-
     def process_rows(self, rows, output_dict):
         for row in rows:
-            try:
-                date = datetime.datetime.strptime(
-                    row[self.date_col], self.date_format).date().isoformat()
-            except ValueError:
-                print(row[self.date_col])
-                continue
-            date_data = output_dict.get(date, {})
-            stock_date_data = date_data.get(self.stock_name, (0, Decimal(0)))
-            total_count, total_money = stock_date_data
-            stock_date_data = total_count + \
-                1, total_money + Decimal(row[self.money_col].replace('$', ''))
-            if date == '2020-07-22':
-                print(stock_date_data[1])
-            date_data[self.stock_name] = stock_date_data
-            output_dict[date] = date_data
+            if row:
+                try:
+                    date = datetime.datetime.strptime(
+                        row[self.date_col], self.date_format).date().isoformat()
+                except ValueError:
+                    print(row[self.date_col])
+                    continue
+                date_data = output_dict.get(date, {})
+                stock_date_data = date_data.get(
+                    self.stock_name, (0, Decimal(0)))
+                total_count, total_money = stock_date_data
+                stock_date_data = total_count + \
+                    1, total_money + \
+                    Decimal(row[self.money_col].replace('$', ''))
+                date_data[self.stock_name] = stock_date_data
+                output_dict[date] = date_data
 
 
 class ShutterStat(StockStatUniqDate):
@@ -114,12 +97,31 @@ class RF123Stat(StockStatNotUniqDate):
     money_col = 5
 
 
+class BigstockStat(StockStatNotUniqDate):
+    stock_name = 'Bigstock'
+    date_col = 0
+    date_format = '%Y-%m-%d %H:%M:%S'
+    delimiter = ','
+    money_col = 2
+
+
+class DepositStat(StockStatUniqDate):
+    stock_name = 'DepositPhotos'
+    date_col = 0
+    date_format = '%b.%d, %Y'
+    delimiter = '\t'
+    total_col = 2
+    total_money_col = 6
+
+
 if __name__ == "__main__":
     stock_classes = [
         ShutterStat,
         IStockStat,
         AdobeStockStat,
         RF123Stat,
+        BigstockStat,
+        DepositStat,
     ]
     result = {}
     for stock_class in stock_classes:
