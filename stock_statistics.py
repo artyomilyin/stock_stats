@@ -106,11 +106,20 @@ class AdobeStockStat(StockStatNotUniqDate):
     money_col = 4
 
 
+class RF123Stat(StockStatNotUniqDate):
+    stock_name = '123rf'
+    date_col = 0
+    date_format = '%Y-%m-%d %H:%M:%S'
+    delimiter = ','
+    money_col = 5
+
+
 if __name__ == "__main__":
     stock_classes = [
         ShutterStat,
         IStockStat,
         AdobeStockStat,
+        RF123Stat,
     ]
     result = {}
     for stock_class in stock_classes:
