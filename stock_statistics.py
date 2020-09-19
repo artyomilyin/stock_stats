@@ -54,7 +54,7 @@ class StockStatNotUniqDate(StockStatBase):
                 try:
                     date = datetime.datetime.strptime(
                         row[self.date_col], self.date_format).date().strftime('%Y-%m-%d')
-                except ValueError:
+                except (ValueError, IndexError):
                     continue
                 date_data = output_dict.get(date, {})
                 stock_date_data = date_data.get(
@@ -117,13 +117,33 @@ class DepositStat(StockStatUniqDate):
     total_money_col = 6
 
 
+class VectorStockStat(StockStatNotUniqDate):
+    stock_name = 'VectorStock'
+    date_col = 0
+    date_format = '%d/%m/%Y, %H:%M:%S %p'
+    delimiter = '\t'
+    money_col = 4
+
+
+class CanStockStat(StockStatNotUniqDate):
+    stock_name = 'CanStock'
+    date_col = 2
+    date_format = '%Y-%m-%d'
+    delimiter = ','
+    money_col = 5
+
+
 STOCK_CLASSES = [
     ShutterStat,
     AdobeStockStat,
-    IStockStat,
+    # DreamsTime,
     RF123Stat,
     BigstockStat,
     DepositStat,
+    CanStockStat,
+    VectorStockStat,
+    IStockStat,
+    # Pixta,
 ]
 
 
