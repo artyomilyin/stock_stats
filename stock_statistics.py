@@ -5,7 +5,10 @@ from decimal import Decimal
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_DIR = os.path.join(BASE_DIR, 'input')
+OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
 FILES_TO_EXCLUDE = ['.gitignore']
+OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, 'export_%s_%s.csv')
 
 
 class StockStatBase:
@@ -31,15 +34,16 @@ class StockStatUniqDate(StockStatBase):
             if row:
                 try:
                     date = datetime.datetime.strptime(
-                        row[self.date_col], self.date_format).date().isoformat()
+                        row[self.date_col], self.date_format).date().strftime('%Y-%m-%d')
+                    date_data = output_dict.get(date, {})
+                    count = int(row[self.total_col])
+                    if not count:
+                        continue
+                    date_data[self.stock_name] = (
+                        count, Decimal(row[self.total_money_col].replace('$', '')))
+                    output_dict[date] = date_data
                 except ValueError:
                     continue
-                date_data = output_dict.get(date, {})
-                str_total_col = row[self.total_col].replace('-', '')
-                total_count = int(str_total_col) if str_total_col else 0
-                date_data[self.stock_name] = (
-                    total_count, Decimal(row[self.total_money_col].replace('$', '')))
-                output_dict[date] = date_data
 
 
 class StockStatNotUniqDate(StockStatBase):
@@ -49,9 +53,8 @@ class StockStatNotUniqDate(StockStatBase):
             if row:
                 try:
                     date = datetime.datetime.strptime(
-                        row[self.date_col], self.date_format).date().isoformat()
+                        row[self.date_col], self.date_format).date().strftime('%Y-%m-%d')
                 except ValueError:
-                    print(row[self.date_col])
                     continue
                 date_data = output_dict.get(date, {})
                 stock_date_data = date_data.get(
@@ -67,7 +70,7 @@ class StockStatNotUniqDate(StockStatBase):
 class ShutterStat(StockStatUniqDate):
     stock_name = 'Shutterstock'
     date_col = 0
-    date_format = '%Y-%d-%m'
+    date_format = '%Y-%m-%d'
     delimiter = ','
     total_col = 1
     total_money_col = 11
@@ -114,18 +117,57 @@ class DepositStat(StockStatUniqDate):
     total_money_col = 6
 
 
-if __name__ == "__main__":
-    stock_classes = [
-        ShutterStat,
-        IStockStat,
-        AdobeStockStat,
-        RF123Stat,
-        BigstockStat,
-        DepositStat,
-    ]
+STOCK_CLASSES = [
+    ShutterStat,
+    AdobeStockStat,
+    IStockStat,
+    RF123Stat,
+    BigstockStat,
+    DepositStat,
+]
+
+
+def process(stock_classes=STOCK_CLASSES):
     result = {}
     for stock_class in stock_classes:
         stock = stock_class()
         stock.read_files(result)
-    from pprint import pprint
-    pprint(result)
+    return result
+
+
+def generate_table(stats_dict, stock_classes=STOCK_CLASSES):
+    total_table = []
+    money_table = []
+    first_row = ["Date"] + \
+        [stock_class.stock_name for stock_class in stock_classes]
+    total_table += [first_row]
+    money_table += [first_row]
+    for date, stock_data in sorted(stats_dict.items()):
+        total_row = [date]
+        money_row = [date]
+        for stock_class in stock_classes:
+            total, money = stock_data.get(
+                stock_class.stock_name, (0, Decimal(0)))
+            total_row += [total]
+            money_row += [str(money).replace('.', ',')]
+        total_table += [total_row]
+        money_table += [money_row]
+    return total_table, money_table
+
+
+def export_to_csv(table, prefix):
+    if not os.path.exists(OUTPUT_DIR):
+        os.mkdir(OUTPUT_DIR)
+    now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    filename = OUTPUT_FILE % (now, prefix)
+    with open(filename, 'w', newline='') as output:
+        writer = csv.writer(output, delimiter='\t')
+        for row in table:
+            writer.writerow(row)
+
+
+if __name__ == "__main__":
+    result = process()
+    tables = generate_table(result)
+    export_to_csv(tables[0], prefix='totalcount')
+    export_to_csv(tables[1], prefix='moneytotal')
