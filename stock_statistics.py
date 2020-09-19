@@ -125,12 +125,28 @@ class VectorStockStat(StockStatNotUniqDate):
     money_col = 4
 
 
+class VectorStockStat(StockStatNotUniqDate):
+    stock_name = 'VectorStock'
+    date_col = 0
+    date_format = '%d/%m/%Y, %H:%M:%S %p'
+    delimiter = '\t'
+    money_col = 4
+
+
 class CanStockStat(StockStatNotUniqDate):
     stock_name = 'CanStock'
     date_col = 2
     date_format = '%Y-%m-%d'
     delimiter = ','
     money_col = 5
+
+
+class PixtaStockStat(StockStatNotUniqDate):
+    stock_name = 'PixtaStock'
+    date_col = 2
+    date_format = '%m/%d/%Y %H:%M:%S'
+    delimiter = ','
+    money_col = 4
 
 
 STOCK_CLASSES = [
@@ -143,7 +159,7 @@ STOCK_CLASSES = [
     CanStockStat,
     VectorStockStat,
     IStockStat,
-    # Pixta,
+    PixtaStockStat,
 ]
 
 
