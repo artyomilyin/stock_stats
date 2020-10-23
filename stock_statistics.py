@@ -76,6 +76,15 @@ class ShutterStat(StockStatUniqDate):
     total_money_col = 11
 
 
+class DreamsTimeStat(StockStatUniqDate):
+    stock_name = 'Dreamstime'
+    date_col = 0
+    date_format = '%B %d, %Y'
+    delimiter = '\t'
+    total_col = 2
+    total_money_col = 1
+
+
 class IStockStat(StockStatNotUniqDate):
     stock_name = 'iStock'
     date_col = 6
@@ -150,16 +159,16 @@ class PixtaStockStat(StockStatNotUniqDate):
 
 
 STOCK_CLASSES = [
-    ShutterStat,
-    AdobeStockStat,
-    # DreamsTime,
-    RF123Stat,
-    BigstockStat,
-    DepositStat,
-    CanStockStat,
-    VectorStockStat,
-    IStockStat,
-    PixtaStockStat,
+    # ShutterStat,
+    # AdobeStockStat,
+    DreamsTimeStat,
+    # RF123Stat,
+    # BigstockStat,
+    # DepositStat,
+    # CanStockStat,
+    # VectorStockStat,
+    # IStockStat,
+    # PixtaStockStat,
 ]
 
 
