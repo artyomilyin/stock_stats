@@ -202,8 +202,30 @@ def export_to_csv(table, prefix):
             writer.writerow(row)
 
 
+def count_milestones(stats_dict):
+    result = {}
+    old_total = old_money = new_total = new_money = 0
+    for date, data in sorted(stats_dict.items()):
+        old_total = new_total
+        old_money = new_money
+        new_total += sum([stock_data[0] for _, stock_data in data.items()])
+        new_money += sum([stock_data[1] for _, stock_data in data.items()])
+        if old_total // 100 < new_total // 100:
+            milestone = result.get(date, [None, None])
+            milestone[1] = (new_total // 100) * 100
+            result[date] = milestone
+        if old_money // 100 < new_money // 100:
+            milestone = result.get(date, [None, None])
+            milestone[0] = (new_money // 100) * 100
+            result[date] = milestone
+    return result
+
+
 if __name__ == "__main__":
     result = process()
+    milestones = count_milestones(result)
     tables = generate_table(result)
     export_to_csv(tables[0], prefix='totalcount')
     export_to_csv(tables[1], prefix='moneytotal')
+    export_to_csv([[key, *value]
+                   for key, value in milestones.items()], prefix='milestones')
