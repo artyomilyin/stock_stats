@@ -199,15 +199,15 @@ class FreePikStat(JsonReaderMixin, StockStatUniqDate):
 STOCK_CLASSES = [
     ShutterStat,
     AdobeStockStat,
+    IStockStat,
     DreamsTimeStat,
     RF123Stat,
     BigstockStat,
     DepositStat,
     CanStockStat,
     VectorStockStat,
-    IStockStat,
-    PixtaStockStat,
     FreePikStat,
+    PixtaStockStat,
 ]
 
 
