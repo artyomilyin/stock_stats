@@ -1,6 +1,8 @@
 import os
 import csv
+import json
 import datetime
+from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -9,6 +11,16 @@ OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
 FILES_TO_EXCLUDE = ['.gitignore']
 OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, 'export_%s_%s.csv')
+
+
+class JsonReaderMixin:
+
+    def read_files(self, output_dict):
+        for file in self.files_list:
+            with open(os.path.join(self.dirname, file), 'r') as input_file:
+                j = json.loads(input_file.read())
+                reader = self.flatten_json(j)
+                self.process_rows(reader, output_dict)
 
 
 class StockStatBase:
@@ -158,17 +170,44 @@ class PixtaStockStat(StockStatNotUniqDate):
     money_col = 4
 
 
+class FreePikStat(JsonReaderMixin, StockStatUniqDate):
+
+    stock_name = 'FreePik'
+    date_col = 0
+    date_format = '%Y-%m-%d'
+    delimiter = None
+    total_col = 1
+    total_money_col = 2
+
+    json_date_path = 'data/statistics_month'
+    json_count_path = 'data/statistics_month/num_downloads'
+    json_money_path = 'data/statistics_month/num_earnings'
+
+    def flatten_json(self, j):
+        data = j['data']['statistics_month']
+        output_struct = []
+        for key, value in data.items():
+            date = (
+                datetime.datetime.strptime(
+                    key, self.date_format).date() + relativedelta(months=1)
+            ).strftime('%Y-%m-%d')
+            output_struct += [(date, value['num_downloads'],
+                               value['num_earnings'])]
+        return output_struct
+
+
 STOCK_CLASSES = [
-    # ShutterStat,
-    # AdobeStockStat,
+    ShutterStat,
+    AdobeStockStat,
     DreamsTimeStat,
-    # RF123Stat,
-    # BigstockStat,
-    # DepositStat,
-    # CanStockStat,
-    # VectorStockStat,
-    # IStockStat,
-    # PixtaStockStat,
+    RF123Stat,
+    BigstockStat,
+    DepositStat,
+    CanStockStat,
+    VectorStockStat,
+    IStockStat,
+    PixtaStockStat,
+    FreePikStat,
 ]
 
 
