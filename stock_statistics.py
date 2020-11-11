@@ -187,9 +187,10 @@ class FreePikStat(JsonReaderMixin, StockStatUniqDate):
         data = j['data']['statistics_month']
         output_struct = []
         for key, value in data.items():
-            date = (
-                datetime.datetime.strptime(
-                    key, self.date_format).date() + relativedelta(months=1)
+            date = datetime.datetime(
+                year=int(value['year']),
+                month=value['month'] + 1,
+                day=int(value['day']),
             ).strftime('%Y-%m-%d')
             output_struct += [(date, value['num_downloads'],
                                value['num_earnings'])]
