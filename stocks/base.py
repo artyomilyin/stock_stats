@@ -47,8 +47,8 @@ class StockStatUniqDate(StockStatBase):
                     count = int(row[self.total_col])
                     if not count:
                         continue
-                    date_data[self.stock_name] = (
-                        count, Decimal(row[self.total_money_col].replace('$', '')))
+                    earning = Decimal(row[self.total_money_col].replace('$', ''))
+                    date_data[self.stock_name] = (count, earning)
                     output_dict[date] = date_data
                 except ValueError:
                     continue
@@ -70,8 +70,8 @@ class StockStatNotUniqDate(StockStatBase):
                 stock_date_data = date_data.get(
                     self.stock_name, (0, Decimal(0)))
                 total_count, total_money = stock_date_data
-                stock_date_data = total_count + \
-                    1, total_money + \
-                    Decimal(row[self.money_col].replace('$', ''))
+                new_total_count = total_count + 1
+                new_total_money = total_money + Decimal(row[self.money_col].replace('$', ''))
+                stock_date_data = (new_total_count, new_total_money)
                 date_data[self.stock_name] = stock_date_data
                 output_dict[date] = date_data
