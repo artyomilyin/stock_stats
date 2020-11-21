@@ -38,6 +38,9 @@ class StockStatBase:
                 filereader = csv.reader(input_file, delimiter=self.delimiter)
                 self.process_rows(filereader, output_dict)
 
+    def preproc_date(self, date):
+        return date
+
 
 class StockStatUniqDate(StockStatBase):
 
@@ -46,7 +49,9 @@ class StockStatUniqDate(StockStatBase):
             if row:
                 try:
                     date = datetime.datetime.strptime(
-                        row[self.date_col], self.date_format).date().strftime('%Y-%m-%d')
+                        self.preproc_date(row[self.date_col]),
+                        self.date_format
+                    ).date().strftime('%Y-%m-%d')
                     date_data = output_dict.get(date, {})
                     count = int(row[self.total_col])
                     if not count:
@@ -65,7 +70,9 @@ class StockStatNotUniqDate(StockStatBase):
             if row:
                 try:
                     date = datetime.datetime.strptime(
-                        row[self.date_col], self.date_format).date().strftime('%Y-%m-%d')
+                        self.preproc_date(row[self.date_col]),
+                        self.date_format
+                    ).date().strftime('%Y-%m-%d')
                 except (ValueError, IndexError):
                     continue
                 date_data = output_dict.get(date, {})
@@ -170,35 +177,22 @@ class PixtaStockStat(StockStatNotUniqDate):
     money_col = 4
 
 
-class FreePikStat(JsonReaderMixin, StockStatUniqDate):
+class FreePikStat(StockStatUniqDate):
 
     stock_name = 'FreePik'
     date_col = 0
     date_format = '%Y-%m-%d'
-    delimiter = None
+    delimiter = ','
     total_col = 1
     total_money_col = 2
 
-    json_date_path = 'data/statistics_month'
-    json_count_path = 'data/statistics_month/num_downloads'
-    json_money_path = 'data/statistics_month/num_earnings'
-
-    def flatten_json(self, j):
-        data = j['data']['statistics_month']
-        output_struct = []
-        for key, value in data.items():
-            date = datetime.datetime(
-                year=int(value['year']),
-                month=value['month'] + 1,
-                day=int(value['day']),
-            ).strftime('%Y-%m-%d')
-            output_struct += [(date, value['num_downloads'],
-                               value['num_earnings'])]
-        return output_struct
+    def preproc_date(self, date):
+        return datetime.datetime.fromtimestamp(int(date)/1000).strftime(self.date_format)
 
 
 STOCK_CLASSES = [
     ShutterStat,
+    FreePikStat,
     AdobeStockStat,
     IStockStat,
     DreamsTimeStat,
@@ -207,7 +201,6 @@ STOCK_CLASSES = [
     DepositStat,
     CanStockStat,
     VectorStockStat,
-    FreePikStat,
     PixtaStockStat,
 ]
 
