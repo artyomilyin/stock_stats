@@ -95,16 +95,17 @@ class PixtaStockStat(StockStatNotUniqDate):
     date_format = '%m/%d/%Y %H:%M:%S'
     delimiter = ','
     money_col = 4
+    currency = "JPY"
 
 
 class FreePikStat(StockStatUniqDate):
-
     stock_name = 'FreePik'
     date_col = 0
     date_format = '%Y-%m-%d'
     delimiter = ','
     total_col = 1
     total_money_col = 2
+    currency = "EUR"
 
     def preproc_date(self, date):
         return datetime.fromtimestamp(int(date)/1000).strftime(self.date_format)

@@ -1,8 +1,6 @@
 import os
 import csv
-import json
 import datetime
-from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
 
@@ -15,6 +13,9 @@ OUTPUT_FILE = os.path.join(OUTPUT_DIR, 'export_%s_%s.csv')
 
 
 class StockStatBase:
+
+    currency = None
+
     def __init__(self, *args, **kwargs):
         self.dirname = os.path.join(INPUT_DIR, self.stock_name)
         if not os.path.exists(self.dirname):
@@ -48,7 +49,7 @@ class StockStatUniqDate(StockStatBase):
                     if not count:
                         continue
                     earning = Decimal(row[self.total_money_col].replace('$', ''))
-                    date_data[self.stock_name] = (count, earning)
+                    date_data[self.stock_name] = (count, earning, self.currency)
                     output_dict[date] = date_data
                 except ValueError:
                     continue
@@ -67,11 +68,9 @@ class StockStatNotUniqDate(StockStatBase):
                 except (ValueError, IndexError):
                     continue
                 date_data = output_dict.get(date, {})
-                stock_date_data = date_data.get(
-                    self.stock_name, (0, Decimal(0)))
-                total_count, total_money = stock_date_data
+                total_count, total_money, currency = date_data.get(
+                    self.stock_name, (0, Decimal(0), self.currency))
                 new_total_count = total_count + 1
                 new_total_money = total_money + Decimal(row[self.money_col].replace('$', ''))
-                stock_date_data = (new_total_count, new_total_money)
-                date_data[self.stock_name] = stock_date_data
+                date_data[self.stock_name] = (new_total_count, new_total_money, currency)
                 output_dict[date] = date_data
