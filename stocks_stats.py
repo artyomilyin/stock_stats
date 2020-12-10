@@ -23,7 +23,7 @@ def generate_table(stats_dict, stock_classes=STOCK_CLASSES):
     def calc_currency(money, currency):
         point_replaced_money = str(money).replace('.', ',')
         if currency:
-            template = "=ROUND({point_replaced_money} * GOOGLEFINANCE(\"CURRENCY:{currency}USD\"); 2)"
+            template = "={point_replaced_money} * GOOGLEFINANCE(\"CURRENCY:{currency}USD\")"
             point_replaced_money = template.format(point_replaced_money=point_replaced_money, currency=currency)
         return point_replaced_money
 

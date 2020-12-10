@@ -107,8 +107,8 @@ class FreePikStat(StockStatUniqDate):
     total_money_col = 2
     currency = "EUR"
 
-    def preproc_date(self, date):
-        return datetime.fromtimestamp(int(date)/1000).strftime(self.date_format)
+    #def preproc_date(self, date):
+    #    return datetime.fromtimestamp(int(date)/1000).strftime(self.date_format)
 
 
 STOCK_CLASSES = [
