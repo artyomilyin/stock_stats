@@ -54,7 +54,7 @@ class App:
             os.mkdir(OUTPUT_DIR)
         now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         filename = OUTPUT_FILE % (now, prefix)
-        with open(filename, 'w', newline='') as output:
+        with open(filename, 'w', encoding='utf-8', newline='') as output:
             writer = csv.writer(output, delimiter='\t')
             for row in table:
                 writer.writerow(row)

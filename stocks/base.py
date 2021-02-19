@@ -26,7 +26,7 @@ class StockStatBase:
 
     def read_files(self, output_dict):
         for file in self.files_list:
-            with open(os.path.join(self.dirname, file), 'r') as input_file:
+            with open(os.path.join(self.dirname, file), 'r', encoding='utf-8') as input_file:
                 filereader = csv.reader(input_file, delimiter=self.delimiter)
                 self.process_rows(filereader, output_dict)
 
