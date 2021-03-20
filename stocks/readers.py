@@ -101,7 +101,7 @@ class PixtaStockStat(StockStatNotUniqDate):
 class FreePikStat(StockStatUniqDate):
     stock_name = 'FreePik'
     date_col = 0
-    date_format = '%Y-%m-%d'
+    date_format = '%a %b %d %Y'
     delimiter = ','
     total_col = 1
     total_money_col = 2
