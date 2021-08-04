@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from .base import (
     StockStatNotUniqDate,
     StockStatUniqDate,
@@ -73,14 +71,6 @@ class VectorStockStat(StockStatNotUniqDate):
     money_col = 4
 
 
-class VectorStockStat(StockStatNotUniqDate):
-    stock_name = 'VectorStock'
-    date_col = 0
-    date_format = '%d/%m/%Y, %H:%M:%S %p'
-    delimiter = '\t'
-    money_col = 4
-
-
 class CanStockStat(StockStatNotUniqDate):
     stock_name = 'CanStock'
     date_col = 2
@@ -107,9 +97,6 @@ class FreePikStat(StockStatUniqDate):
     total_money_col = 2
     currency = "EUR"
 
-    #def preproc_date(self, date):
-    #    return datetime.fromtimestamp(int(date)/1000).strftime(self.date_format)
-
 
 STOCK_CLASSES = [
     ShutterStat,
@@ -121,6 +108,6 @@ STOCK_CLASSES = [
     BigstockStat,
     DepositStat,
     CanStockStat,
-    VectorStockStat,
+    # VectorStockStat,
     PixtaStockStat,
 ]
